@@ -47,7 +47,8 @@ dataset <- merge(dataset, act_names, by = "ActivityLabel")
 
 # Identify collumns with measurments on the mean and standard deviation
 # This is done by identifying which collumn names contain the text "mean()" and "std()".
-# We know  this is the case by reading the features_info.text doc
+# We know  this is the case by reading the features_info.text doc, 
+# that indicates that measurements on the mean and standard deviation have the suffixes mentioned
 col_mean <- grep("mean()", names(dataset))
 col_std <- grep("std()", names(dataset))
 # Select only the identified collumnsplus the ones with the Subject Number and Activity Name
@@ -55,3 +56,18 @@ subset <- c(col_mean, col_std,
             which("ActivityName" == names(dataset)), which("SubjectNumber" == names(dataset))
             )
 dataset <- dataset[, subset]
+
+
+# Create the tidy dataset with the averages by using dplyr package
+# First group by subject and activity
+# The calculate the mean for each remaining collumn
+averages_dataset <- dataset %>%
+        group_by(
+                SubjectNumber,
+                ActivityName
+        ) %>%
+        summarise_each(
+                funs(mean)
+        )
+# Re-write the collumn names to indicate that they measure the averages
+names(averages_dataset)[-c(1,2)] <- paste0("avrg-", names(averages_dataset)[-c(1,2)])
