@@ -8,8 +8,8 @@ library(dplyr)
 
 # load datasets
 #
-# This assumes the raw data is in the working directory 
-# and it is organized like in the zip file provided 
+# This assumes the folders with the raw data are in the working directory 
+# and are organized like in the zip file provided 
 #
 # test datasets
 test_set <- read.table("test/X_test.txt")
