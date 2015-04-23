@@ -8,6 +8,9 @@ library(dplyr)
 
 # load datasets
 #
+# This assumes the raw data is in the working directory 
+# and it is organized like in the zip file provided 
+#
 # test datasets
 test_set <- read.table("test/X_test.txt")
 test_act_labels <- read.table("test/y_test.txt")
@@ -18,7 +21,7 @@ train_set <- read.table("train/X_train.txt")
 train_act_labels <- read.table("train/y_train.txt")
 train_subjects <-read.table("train/subject_train.txt")
 #
-# labels
+# labels datasets
 act_names <- read.table("activity_labels.txt")
 features_names <- read.table("features.txt")
 
@@ -27,20 +30,22 @@ features_names <- read.table("features.txt")
 #
 # test dataset
 test_set <- cbind(test_set,  
-                  ActivityLabel = test_act_labels[[1]], SubjectNumber = test_subjects[[1]]
+                  ActivityLabel = test_act_labels[[1]], 
+                  SubjectNumber = test_subjects[[1]]
                   )
 # train dataset
 train_set <- cbind(train_set,  
-                  ActivityLabel = train_act_labels[[1]], SubjectNumber = train_subjects[[1]]
+                  ActivityLabel = train_act_labels[[1]],
+                  SubjectNumber = train_subjects[[1]]
                   )
 # row bind the two datsets
 dataset <- rbind(test_set, train_set)
 
 
-# label the dataset features according to the features names
+# label the dataset features according to the features_names vector
 names(dataset)[1:nrow(features_names)] <- as.character(features_names[[2]])
 
-# Create new collumn with human with the human-readable names of the activities using merge
+# Create new collumn with the human-readable names of the activities using merge
 names(act_names)<- c("ActivityLabel", "ActivityName")
 dataset <- merge(dataset, act_names, by = "ActivityLabel")
 
@@ -60,7 +65,7 @@ dataset <- dataset[, subset]
 
 # Create the tidy dataset with the averages by using dplyr package
 # First group by subject and activity
-# The calculate the mean for each remaining collumn
+# Then calculate the mean for each remaining collumn
 averages_dataset <- dataset %>%
         group_by(
                 SubjectNumber,
@@ -69,5 +74,9 @@ averages_dataset <- dataset %>%
         summarise_each(
                 funs(mean)
         )
-# Re-write the collumn names to indicate that they measure the averages
+# Re-write the all collumn names, except first two, to indicate that they measure the averages
 names(averages_dataset)[-c(1,2)] <- paste0("avrg-", names(averages_dataset)[-c(1,2)])
+
+
+# Write table to .txt file
+#write.table(averages_dataset, file = "tidy_set_averages.txt", row.names = FALSE)
